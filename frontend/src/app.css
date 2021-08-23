@@ -6,7 +6,7 @@
   justify-content: space-around;
 }
 
-.label {
+label {
   width: max-content;
   color: tomato;
   font-size: 13px;
