@@ -1,5 +1,7 @@
-import { useState } from "react";
+import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css'
+import { useState, useRef, useCallback } from "react";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
+import Geocoder from "react-map-gl-geocoder";
 import { Room, Star } from "@material-ui/icons";
 import "./app.css";
 import { useEffect } from "react";
@@ -19,6 +21,7 @@ function App() {
   const [title, setTitle] = useState(null);
   const [desc, setDesc] = useState(null);
   const [star, setStar] = useState(0);
+  const mapRef = useRef();
   const [viewport, setViewport] = useState({
     width: "100vw",
     height: "100vh",
@@ -79,14 +82,36 @@ function App() {
     });
   };
 
+  const handleViewportChange = useCallback(
+    (newViewport) => setViewport(newViewport),
+    []
+  );
+
+  // if you are happy with Geocoder default settings, you can just use handleViewportChange directly
+  const handleGeocoderViewportChange = useCallback((newViewport) => {
+    const geocoderDefaultOverrides = { transitionDuration: 1000 };
+
+    return handleViewportChange({
+      ...newViewport,
+      ...geocoderDefaultOverrides,
+    });
+  }, []);
+
   return (
     <ReactMapGL
+      ref={mapRef}
       {...viewport}
       onViewportChange={(nextViewport) => setViewport(nextViewport)}
       mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
       mapStyle="mapbox://styles/takumakamio/cksnga7i00trn18nwda4vpmg0"
       onDblClick={handleAddClick}
     >
+      <Geocoder
+        mapRef={mapRef}
+        mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
+        onViewportChange={handleGeocoderViewportChange}
+        position="top-left"
+      />
       {pins.map((p) => (
         <>
           <Marker
